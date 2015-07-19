@@ -51,6 +51,7 @@
     ({:erlang :is_record 3} :true)
     ({:erlang :is_reference 1} :true)
     ({:erlang :is_tuple 1} :true)
+    ({:erlang :is_map 1} :true)
     ({:erlang :and 2} :true)
     ({:erlang :or 2} :true)
     ({:erlang :> 2} :true)
