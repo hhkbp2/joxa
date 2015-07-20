@@ -95,21 +95,11 @@
      (let* (transformed (convert-list-ast path0 filename annotations list idx))
        (case transformed
          ({_ annotations1 transform-list}
-          (let* (result (lists/foldl (fn (element acc)
-                                       (case acc
-                                         ({list1 list2 count}
-                                          (when (erlang/== (erlang/rem count 2) 0))
-                                          {(element . list1) list2 (erlang/+ count 1)})
-                                         ({list1 list2 count}
-                                          {list1 (element . list2) (erlang/+ count 1)})))
-                                     {[] [] 0} (lists/reverse transform-list)))
-            (case result
-              ({list1 list2 count}
-               {(joxa-cmp-path/make-annots (joxa-cmp-path/path? path0)
-                                           filename
-                                           :map idx
-                                           annotations1)
-                (maps/from-list (lists/zip (lists/reverse list1) (lists/reverse list2)))})))))))
+          {(joxa-cmp-path/make-annots (joxa-cmp-path/path? path0)
+                                      filename
+                                      :map idx
+                                      annotations1)
+           (:map . (lists/reverse transform-list))}))))
     ({:tuple list idx}
      (let* (transformed (convert-list-ast path0 filename annotations list idx))
        (case transformed

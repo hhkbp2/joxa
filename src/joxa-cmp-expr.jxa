@@ -28,22 +28,32 @@
       (cerl/ann_c_tuple (joxa-cmp-ctx/annots-from-context [] path0 ctx)
                         (lists/reverse body)))))
 
-(defn make-map-expr (path0 ctx values)
-  (case (lists/foldl (fn (val acc0)
-                         (case acc0
-                           ({path1 acc1}
-                            (case val
-                              ({k1 v1}
-                               (let* (path2 (joxa-cmp-path/traverse-path path1)
-                                      k2 (make-expr path2 ctx k1)
-                                      v2 (make-expr (joxa-cmp-path/incr-path path2) ctx v1)
-                                      annot1 (joxa-cmp-ctx/annots-from-context [] path1 ctx)
-                                      pair (cerl/ann_c_map_pair annot1 (cerl/ann_c_atom annot1 :assoc) k2 v2))
-                                 {(joxa-cmp-path/incr-path path1) (pair . acc1)}))))))
-                     {path0 []} values)
-    ({_ body}
-     (cerl/ann_c_map (joxa-cmp-ctx/annots-from-context [] path0 ctx)
-                     (lists/reverse body)))))
+(defn make-map-expr (path0 ctx elements)
+  (case (lists/foldl (fn (el acc)
+                           (case acc
+                             ({keys values count}
+                              (when (erlang/== (erlang/rem count 2) 0))
+                              {(el . keys) values (erlang/+ count 1)})
+                             ({keys values count}
+                              {keys (el . values) (erlang/+ count 1)})))
+                     {[] [] 0} elements)
+    ({keys values count} (when (erlang/== (erlang/rem count 2) 0))
+     (case (lists/foldl (fn (kv acc)
+                          (case acc
+                            ({path1 acc1}
+                             (case kv
+                               ({k1 v1}
+                                (let* (k2 (make-expr (joxa-cmp-path/traverse-path path1) ctx k1)
+                                       v2 (make-expr (joxa-cmp-path/traverse-path (joxa-cmp-path/incr-path path1)) ctx v1)
+                                       annot2 (joxa-cmp-ctx/annots-from-context [] path1 ctx)
+                                       pair (cerl/ann_c_map_pair annot2 (cerl/c_atom :assoc) k2 v2))
+                                  {(joxa-cmp-path/incr-path 2 path0) (pair . acc1)}))))))
+                        {path0 []} (lists/zip (lists/reverse keys) (lists/reverse values)))
+       ({_ body}
+        (cerl/ann_c_map (joxa-cmp-ctx/annots-from-context [] path0 ctx)
+                        (lists/reverse body)))))
+    ({_ _ _}
+     (joxa-cmp-ctx/add-error-r-nil-ctx ctx path0 :invalid-map))))
 
 (defn+ make-seq (path0 ctx form)
   (let* (annots (joxa-cmp-ctx/annots-from-context :traverse path0 ctx))
@@ -380,7 +390,13 @@
       (arg (when (erlang/is_tuple arg))
            (make-tuple-expr path0 ctx (erlang/tuple_to_list arg)))
       (arg (when (erlang/is_map arg))
-           (make-map-expr path0 ctx (maps/to_list arg)))
+           (make-map-expr path0
+                          ctx
+                          (lists/reverse (lists/foldl (fn (el acc)
+                                                        (case el
+                                                          ({k v}
+                                                           (v . (k . acc)))))
+                                                      [] (maps/to_list arg)))))
       ((:let* . _)
        (make-let path0 ctx form))
       ((:case . (expr . clauses))
