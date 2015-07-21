@@ -45,22 +45,8 @@
         (cerl/ann_c_map (joxa-cmp-ctx/annots-from-context [] path0 ctx)
                         (lists/reverse body)))))
 
-(defn+ list-to-tuples (elements)
-  (case (lists/foldl (fn (el acc)
-                           (case acc
-                             ({keys values count}
-                              (when (erlang/== (erlang/rem count 2) 0))
-                              {(el . keys) values (erlang/+ count 1)})
-                             ({keys values count}
-                              {keys (el . values) (erlang/+ count 1)})))
-                     {[] [] 0} elements)
-    ({keys values count} (when (erlang/== (erlang/rem count 2) 0))
-     {:true (lists/zip (lists/reverse keys) (lists/reverse values))})
-    ({_ _ _}
-     {:false elements})))
-
 (defn make-map-expr-from-list (path0 ctx elements)
-  (case (list-to-tuples elements)
+  (case (joxa-cmp-case/list-to-tuples elements)
     ({:true tuples}
      (make-map-expr-from-tuples path0 ctx tuples))
     (_

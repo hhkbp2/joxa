@@ -7,7 +7,7 @@
              joxa-cmp-path
              joxa-cmp-ctx
              joxa-cmp-lexer
-             joxa-cmp-expr))
+             joxa-cmp-case))
 
 
 (defspec transform-ast ((erlang/any) (erlang/any) (erlang/any) (erlang/any))
@@ -96,7 +96,7 @@
      (let* (transformed (convert-list-ast path0 filename annotations list idx))
        (case transformed
          ({_ annotations1 transform-list}
-          (case (joxa-cmp-expr/list-to-tuples (lists/reverse transform-list))
+          (case (joxa-cmp-case/list-to-tuples (lists/reverse transform-list))
             ({:true tuples}
              {(joxa-cmp-path/make-annots (joxa-cmp-path/path? path0)
                                          filename
