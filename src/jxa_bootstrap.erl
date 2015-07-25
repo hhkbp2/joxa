@@ -1,7 +1,7 @@
 %% THIS IS A GENERATED FILE, DO NOT EDIT DIRECTLY
 -module(jxa_bootstrap).
 
--export([do_bootstrap/1]).
+-export([do_bootstrap/1, do_compile_jxa/1, do_compile_ast/1]).
 
 do_bootstrap([OutputDir, InputFile]) ->
     {ok, [AST]} = file:consult(InputFile),
@@ -17,3 +17,11 @@ do_bootstrap([OutputDir, InputFile]) ->
         Error ->
             erlang:throw(Error)
     end.
+
+do_compile_jxa([OutputDir, InputFile]) ->
+    io:format("OutputDir: ~p InputFile: ~p~n", [OutputDir, InputFile]),
+    'joxa-compiler':'do-compile'(InputFile, [{outdir, OutputDir}]).
+
+do_compile_ast([OutputDir, InputFile, OutputFile]) ->
+    'joxa-compiler':'do-compile'(InputFile, [to_ast, {outdir, OutputDir}]),
+    file:write_file(OutputFile, <<".">>, [append]).

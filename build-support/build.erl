@@ -45,7 +45,7 @@ main(["compile", SrcDir, OutDir]) ->
                 case should_skip(File, to_beam(OutDir, E)) of
                     false ->
                         %% compile File if it is not compiled already
-                        io:format("writing beam to dir ~p~n", [OutDir]),
+                        io:format("writing ~p beam to dir ~p~n", [File, OutDir]),
                         'joxa-compiler':'do-compile'(File, [{outdir, OutDir}]),
                         io:format("Module Name '~s'~n", [E]);
                    true ->
