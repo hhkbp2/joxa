@@ -331,7 +331,7 @@ $(call doc-type-to-target,$(call remove-from,$(doc_types),$(special_types))):
 doc-pdf: doc-latex
 	$(QUIET) echo "Running LaTeX files through pdflatex..."
 	$(MAKE) -C $(doc_dir)/$(call doc-target-to-type,$<) all-pdf
-	@echo "pdflatex finished; the PDF files are in $(DOCBUILDDIR)/latex."
+	@echo "pdflatex finished; the PDF files are in $(doc_dir)/$(call doc-target-to-type,$<)."
 
 doc-info: doc-texinfo
 	$(QUIET) $(MAKE) -C "$(doc_dir)/$(call doc-target-to-type,$<)" info
