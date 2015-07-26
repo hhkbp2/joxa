@@ -2,7 +2,7 @@
 
 {application, joxa,
  [{description, "The Joxa Language Implementation"},
-  {vsn, "0.1.2+build.65.78cb2f1"},
+  {vsn, "0.1.2+build.66.ce0212e"},
   {modules, []},
   {registered, []},
   {applications, [kernel, stdlib, compiler, erlware_commons,
