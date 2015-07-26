@@ -6,7 +6,7 @@
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 PAPER	 =
-DOCBUILDDIR   = $(APPDIR)/doc
+DOCBUILDDIR   = $(CURDIR)/doc
 DOCSRCDIR     = $(CURDIR)/doc
 
 # Internal variables.
