@@ -5,10 +5,4 @@ joxa
 deps
 _build
 erl_crash.dump
-doc/_site
-doc/html
-doc/latex
-doc/man
-doc/texinfo
-doc/text
-doc/doctrees
+doc/*/

@@ -1,128 +1,77 @@
-## -*- mode: Makefile; fill-column: 75; comment-column: 75; -*-
+## -*- mode: Makefile -*-
 # Makefile for Sphinx documentation
 #
 
-# You can set these variables from the command line.
-SPHINXOPTS    =
-SPHINXBUILD   = sphinx-build
-PAPER	 =
-DOCBUILDDIR   = $(CURDIR)/doc
-DOCSRCDIR     = $(CURDIR)/doc
+SPHINXBUILD        := sphinx-build
+doc_dir             := $(CURDIR)/doc
+doctree_dir         := $(doc_dir)/doctrees
+PAPER               :=
+PAPER_OPT_a4     := -D latex_paper_size=a4
+PAPER_OPT_letter := -D latex_paper_size=letter
+SPHINXOPTS      := -d $(doctree_dir) $(PAPER_OPT_$(PAPER))
 
-# Internal variables.
-PAPEROPT_a4     = -D latex_paper_size=a4
-PAPEROPT_letter = -D latex_paper_size=letter
-ALLSPHINXOPTS   = -d $(DOCBUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS)
-# the i18n builder cannot share the environment and doctrees with the others
-I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS)
+# call sphinx-build to build doc for specified type
+# $(call sphinx-build,type,message)
+define sphinx-build
+  $(QUIET) $(SPHINXBUILD) $(SPHINXOPTS) -b "$1" "$(doc_dir)" "$(doc_dir)/$1"
+  $(QUIET) echo
+  $(if $2,$(QUIET) echo "$2",$(QUIET) echo "Build finished. The $1 files are in $(doc_dir)/$1.")
+endef
 
-.PHONY: help html dirhtml singlehtml htmlhelp qthelp devhelp epub pdf text man changes linkcheck
+# convert doc types to target names
+# $(call doc-type-to-target,types)
+define doc-type-to-target
+  $(addprefix doc-,$1)
+endef
 
-help:
-	@echo "Please use \`make <target>' where <target> is one of"
-	@echo "  html       to make standalone HTML files"
-	@echo "  dirhtml    to make HTML files named index.html in directories"
-	@echo "  singlehtml to make a single large HTML file"
-	@echo "  pickle     to make pickle files"
-	@echo "  json       to make JSON files"
-	@echo "  htmlhelp   to make HTML files and a HTML help project"
-	@echo "  qthelp     to make HTML files and a qthelp project"
-	@echo "  devhelp    to make HTML files and a Devhelp project"
-	@echo "  epub       to make an epub"
-	@echo "  latex      to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
-	@echo "  latexpdf   tno make LaTeX files and run them through pdflatex"
-	@echo "  text       to make text files"
-	@echo "  man    to make manual pages"
-	@echo "  texinfo    to make Texinfo files"
-	@echo "  info       to make Texinfo files and run them through makeinfo"
-	@echo "  gettext    to make PO message catalogs"
-	@echo "  changes    to make an overview of all changed/added/deprecated items"
-	@echo "  linkcheck  to check all external links for integrity"
-	@echo "  doctest    to run all doctests embedded in the documentation (if enabled)"
+# convert doc target names to types
+# notice: please keep the function without identation
+# since the indentation spaces would be prefixed to the result string.
+# $(call doc-target-to-type,targets)
+define doc-target-to-type
+$(patsubst doc-%,%,$1)
+endef
 
-doc: html pdf text man info
-html:
-	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(DOCSRCDIR) $(DOCBUILDDIR)/html
-	@echo
-	@echo "Build finished. The HTML pages are in $(DOCBUILDDIR)/html."
+# remove member of sub-list from supper-list
+# $(call remove-from,super-list,sub-list)
+define remove-from
+  $(foreach member,$1,$(if $(filter $(member),$2),,$(member)))
+endef
 
-dirhtml:
-	$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) $(DOCSRCDIR) $(DOCBUILDDIR)/dirhtml
-	@echo
-	@echo "Build finished. The HTML pages are in $(DOCBUILDDIR)/dirhtml."
+doc_types     := html dirhtml singlehtml epub latex pdf text man texinfo info
+special_types := pdf info
+doc_targets   := $(call doc-type-to-target,$(doc_types))
 
-singlehtml:
-	$(SPHINXBUILD) -b singlehtml $(ALLSPHINXOPTS) $(DOCSRCDIR) $(DOCBUILDDIR)/singlehtml
-	@echo
-	@echo "Build finished. The HTML page is in $(DOCBUILDDIR)/singlehtml."
+.PHONY: doc-help doc-clean $(doc_targets)
 
-htmlhelp:
-	$(SPHINXBUILD) -b htmlhelp $(ALLSPHINXOPTS) $(DOCSRCDIR) $(DOCBUILDDIR)/htmlhelp
-	@echo
-	@echo "Build finished; now you can run HTML Help Workshop with the" \
-	      ".hhp project file in $(DOCBUILDDIR)/htmlhelp."
+doc-help:
+	$(QUIET) echo "Please use \`make <target>' where <target> is one of"
+	$(QUIET) echo "  doc-html       to make standalone HTML files"
+	$(QUIET) echo "  doc-dirhtml    to make HTML files named index.html in directories"
+	$(QUIET) echo "  doc-singlehtml to make a single large HTML file"
+	$(QUIET) echo "  doc-epub       to make an epub"
+	$(QUIET) echo "  doc-latex      to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
+	$(QUIET) echo "  doc-pdf        to make pdf files"
+	$(QUIET) echo "  doc-text       to make text files"
+	$(QUIET) echo "  doc-man        to make manual pages"
+	$(QUIET) echo "  doc-texinfo    to make Texinfo files"
+	$(QUIET) echo "  doc-info       to make Texinfo files and run them through makeinfo"
 
-qthelp:
-	$(SPHINXBUILD) -b qthelp $(ALLSPHINXOPTS) $(DOCSRCDIR) $(DOCBUILDDIR)/qthelp
-	@echo
-	@echo "Build finished; now you can run "qcollectiongenerator" with the" \
-	      ".qhcp project file in $(DOCBUILDDIR)/qthelp, like this:"
-	@echo "# qcollectiongenerator $(DOCBUILDDIR)/qthelp/Joxa.qhcp"
-	@echo "To view the help file:"
-	@echo "# assistant -collectionFile $(DOCBUILDDIR)/qthelp/Joxa.qhc"
+#$(error $(call remove-from,$(doc_types),$(special_types)))
 
-epub:
-	$(SPHINXBUILD) -b epub $(ALLSPHINXOPTS) $(DOCSRCDIR) $(DOCBUILDDIR)/epub
-	@echo
-	@echo "Build finished. The epub file is in $(DOCBUILDDIR)/epub."
+doc: $(doc_targets)
+$(call doc-type-to-target,$(call remove-from,$(doc_types),$(special_types))):
+	$(call check-cmd,$(SPHINXBUILD))
+	$(call sphinx-build,$(call doc-target-to-type,$@),)
 
-pdf:
-	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(DOCSRCDIR) $(DOCBUILDDIR)/latex
-	@echo "Running LaTeX files through pdflatex..."
-	$(MAKE) -C $(DOCBUILDDIR)/latex all-pdf
+doc-pdf: doc-latex
+	$(QUIET) echo "Running LaTeX files through pdflatex..."
+	$(MAKE) -C $(doc_dir)/$(call doc-target-to-type,$<) all-pdf
 	@echo "pdflatex finished; the PDF files are in $(DOCBUILDDIR)/latex."
 
-text:
-	$(SPHINXBUILD) -b text $(ALLSPHINXOPTS) $(DOCSRCDIR) $(DOCBUILDDIR)/text
-	@echo
-	@echo "Build finished. The text files are in $(DOCBUILDDIR)/text."
-
-man:
-	$(SPHINXBUILD) -b man $(ALLSPHINXOPTS) $(DOCSRCDIR) $(DOCBUILDDIR)/man
-	@echo
-	@echo "Build finished. The manual pages are in $(DOCBUILDDIR)/man."
-
-texinfo:
-	$(SPHINXBUILD) -b texinfo $(ALLSPHINXOPTS) $(DOCBUILDDIR)/texinfo
-	@echo
-	@echo "Build finished. The Texinfo files are in $(DOCSRCDIR) $(DOCBUILDDIR)/texinfo."
-	@echo "Run \`make' in that directory to run these through makeinfo" \
-	      "(use \`make info' here to do that automatically)."
-
-info:
-	$(SPHINXBUILD) -b texinfo $(ALLSPHINXOPTS) $(DOCSRCDIR) $(DOCBUILDDIR)/texinfo
-	@echo "Running Texinfo files through makeinfo..."
-	make -C $(DOCBUILDDIR)/texinfo info
-	@echo "makeinfo finished; the Info files are in $(DOCBUILDDIR)/texinfo."
-
-changes:
-	$(SPHINXBUILD) -b changes $(ALLSPHINXOPTS) $(DOCSRCDIR) $(DOCBUILDDIR)/changes
-	@echo
-	@echo "The overview file is in $(DOCBUILDDIR)/changes."
-
-linkcheck:
-	$(SPHINXBUILD) -b linkcheck $(ALLSPHINXOPTS) $(DOCSRCDIR) $(DOCBUILDDIR)/linkcheck
-	@echo
-	@echo "Link check complete; look for any errors in the above output " \
-	      "or in $(DOCBUILDDIR)/linkcheck/output.txt."
+doc-info: doc-texinfo
+	$(QUIET) $(MAKE) -C "$(doc_dir)/$(call doc-target-to-type,$<)" info
+	$(QUIET) echo "makeinfo finished; the Info files are in $(doc_dir)/$<."
 
 doc-clean:
-	rm -rf $(DOCBUILDDIR)/_site
-	rm -rf $(DOCBUILDDIR)/html
-	rm -rf $(DOCBUILDDIR)/latex
-	rm -rf $(DOCBUILDDIR)/man
-	rm -rf $(DOCBUILDDIR)/texinfo
-	rm -rf $(DOCBUILDDIR)/text
-	rm -rf $(DOCBUILDDIR)/doctrees
-
-doc-distclean: doc-clean
+	$(RM) $(addprefix $(doc_dir)/,$(doc_types))
