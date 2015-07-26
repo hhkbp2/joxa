@@ -166,7 +166,7 @@ endef
 
 all: build
 
-build: deps update-versions $(beam_files)
+build: deps update-versions bootstrap lib
 
 deps:
 	$(call check-cmd,$(REBAR))
@@ -176,7 +176,7 @@ deps:
 update-versions:
 	$(QUIET) cat ${app_src_file} | perl -p -e "s/({vsn, \")[^\"]*(\"},)/\$${1}${version}\$${2}/g" > ${app_src_file}.tmp
 	$(QUIET) mv ${app_src_file}.tmp ${app_src_file}
-	$(QUIET) cat ${shell_src_file} | sed -e "s/(Joxa Version ).*?(~n~n)/\$${1}${version}\$${2}/g" > ${shell_src_file}.tmp
+	$(QUIET) cat ${shell_src_file} | perl -p -e "s/(Joxa Version ).*?(~n~n)/\$${1}${version}\$${2}/g" > ${shell_src_file}.tmp
 	$(QUIET) mv ${shell_src_file}.tmp ${shell_src_file}
 
 bootstrap: bootstrap-message compiler ast
