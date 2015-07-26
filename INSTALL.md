@@ -10,10 +10,8 @@ the repository there are a few things you should do.
 TLDR
 ----
 
-    $> make get-deps
-    $> make test
     $> make escript
-    $> mv ./_build/joxa/escript/joxa <someplace-in-the-path>
+    $> mv ./joxa <someplace-in-the-path>
 
 Please note that on *BSD platforms you need to use `gmake` instead of
 `make` in order to build Joxa successfully.
@@ -38,7 +36,7 @@ You can pull all of these down build them and put them somewhere in
 your erlang path (ERL_LIBS). However, there is a rule in the make file
 that will do this as well. Just run
 
-    $> make get-deps
+    $> make deps
 
 Running The Tests
 -----------------
@@ -57,7 +55,7 @@ you can use to run joxa.
 
 Then you can just mv the executable to some place in your path.
 
-    $> mv ./_build/joxa/escript/joxa <someplace-in-the-path>
+    $> mv ./joxa <someplace-in-the-path>
 
 
 OTP Application
